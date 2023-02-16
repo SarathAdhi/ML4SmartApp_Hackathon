@@ -1,0 +1,36 @@
+import { filterDoc } from "@backend/lib";
+import { where } from "firebase/firestore";
+import { User } from "types/user";
+import { create } from "zustand";
+
+type UseStoreProps = {
+  user: User | null;
+  getProfile: () => void;
+};
+
+export const useStore = create<UseStoreProps>((set) => ({
+  user: null,
+
+  getProfile: async () => {
+    const token = localStorage.getItem("token")!;
+
+    if (!token) return;
+
+    try {
+      const res = await filterDoc("user", where("uuid", "==", token));
+
+      if (res.length === 0) return;
+
+      const user = res[0];
+      delete user["password"];
+
+      localStorage.setItem("token", user.uuid);
+
+      console.log({ user });
+
+      set({ user });
+    } catch ({ error }) {
+      localStorage.removeItem("token");
+    }
+  },
+}));
