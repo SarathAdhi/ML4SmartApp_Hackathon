@@ -1,6 +1,7 @@
 import PageLayout from "@layouts/PageLayout";
 import Input from "antd/lib/input";
 import Form from "antd/lib/Form";
+import Switch from "antd/lib/Switch";
 import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { addDoc } from "@backend/lib";
@@ -17,9 +18,10 @@ function Register() {
     email: "",
     password: "",
     companyId: "",
+    isAdmin: false,
   });
 
-  const { user } = useStore();
+  const { user, getProfile } = useStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +38,7 @@ function Register() {
       });
 
       localStorage.setItem("token", uuid);
+      getProfile();
 
       toast.success("Account created successfully");
     } catch (error) {
@@ -46,6 +49,27 @@ function Register() {
   return (
     <PageLayout>
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <div className="flex items-center gap-5 mb-5">
+          <h3
+            className={!formDetails.isAdmin ? "font-semibold" : "font-normal"}
+          >
+            Employee
+          </h3>
+
+          <Switch
+            onChange={(value) =>
+              setFormDetails({
+                ...formDetails,
+                isAdmin: value,
+              })
+            }
+          />
+
+          <h3 className={formDetails.isAdmin ? "font-semibold" : "font-normal"}>
+            Admin
+          </h3>
+        </div>
+
         <Form.Item
           label="Name"
           name="name"

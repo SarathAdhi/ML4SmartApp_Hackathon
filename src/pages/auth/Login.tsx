@@ -4,7 +4,7 @@ import Form from "antd/lib/Form";
 import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { filterDoc } from "@backend/lib";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { where } from "firebase/firestore";
 import { useStore } from "@utils/store";
@@ -17,7 +17,7 @@ function Login() {
     password: "",
   });
 
-  const { user } = useStore();
+  const { user, getProfile } = useStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,8 +42,9 @@ function Login() {
       }
 
       localStorage.setItem("token", user.uuid);
+      getProfile();
 
-      toast.success("Account created successfully");
+      toast.success("Login successful");
     } catch (error) {
       toast.success("Smething went wrong");
     }
@@ -87,6 +88,8 @@ function Login() {
 
         <Button htmlType="submit">Login</Button>
       </Form>
+
+      <Link to="/auth/register">Create an account</Link>
     </PageLayout>
   );
 }

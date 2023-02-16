@@ -5,11 +5,20 @@ import { create } from "zustand";
 
 type UseStoreProps = {
   user: User | null;
+  isAdmin: boolean;
+  logout: () => void;
   getProfile: () => void;
 };
 
 export const useStore = create<UseStoreProps>((set) => ({
   user: null,
+
+  isAdmin: false,
+
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ user: null, isAdmin: false });
+  },
 
   getProfile: async () => {
     const token = localStorage.getItem("token")!;
@@ -28,7 +37,7 @@ export const useStore = create<UseStoreProps>((set) => ({
 
       console.log({ user });
 
-      set({ user });
+      set({ user, isAdmin: user.isAdmin });
     } catch ({ error }) {
       localStorage.removeItem("token");
     }

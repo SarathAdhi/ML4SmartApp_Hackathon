@@ -3,10 +3,12 @@ import "./App.css";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "pages/Home";
+import Upload from "pages/document/Upload";
 import Login from "pages/auth/Login";
 import Register from "pages/auth/Register";
 import { Toaster } from "react-hot-toast";
 import { useStore } from "@utils/store";
+import ViewDocument from "pages/document/id";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,14 @@ const router = createBrowserRouter([
   {
     path: "/auth/register",
     element: <Register />,
+  },
+  {
+    path: "/document/upload",
+    element: <Upload />,
+  },
+  {
+    path: "/document/:id",
+    element: <ViewDocument />,
   },
 ]);
 

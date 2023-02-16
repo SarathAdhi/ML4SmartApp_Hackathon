@@ -1,28 +1,44 @@
-import { userCollectionRef } from "@backend/db";
+import {
+  dbFireStore,
+  documentCollectionRef,
+  storage,
+  userCollectionRef,
+} from "@backend/db";
 import {
   addDoc as addDocFB,
   query,
   getDocs,
   QueryConstraint,
+  updateDoc as updateDocFB,
+  doc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-type AddDocProps = {
-  collection: "user" | "admin";
+type DocProps = {
+  collection: "user" | "document";
   values: {};
 };
 
 export const addDoc = async (
-  collection: AddDocProps["collection"] = "user",
-  values: AddDocProps["values"]
+  collection: DocProps["collection"] = "user",
+  values: DocProps["values"]
 ) => {
   const getCollection =
-    collection === "user" ? userCollectionRef : userCollectionRef;
+    collection === "user" ? userCollectionRef : documentCollectionRef;
 
   return await addDocFB(getCollection, values);
 };
 
+export const updateDoc = async (
+  collection: DocProps["collection"] = "user",
+  id: string,
+  values: DocProps["values"]
+) => {
+  return await updateDocFB(doc(dbFireStore, collection, id), values);
+};
+
 type FilterDocProps = {
-  collection: "user" | "admin";
+  collection: "user" | "document";
   where: QueryConstraint;
 };
 
@@ -31,7 +47,7 @@ export const filterDoc = async (
   where: FilterDocProps["where"]
 ) => {
   const getCollection =
-    collection === "user" ? userCollectionRef : userCollectionRef;
+    collection === "user" ? userCollectionRef : documentCollectionRef;
 
   const res = query(getCollection, where);
   const querySnapshot = await getDocs(res);
@@ -43,4 +59,23 @@ export const filterDoc = async (
   });
 
   return data;
+};
+
+type FileUploadProps = {
+  fileName: string;
+  file: File | any;
+};
+
+export const fileUpload = async (
+  fileName: FileUploadProps["fileName"],
+  file: FileUploadProps["file"]
+) => {
+  const storageRef = ref(storage, fileName);
+
+  return await uploadBytes(storageRef, file);
+};
+
+export const getFile = async (filePath: string) => {
+  const fileref = ref(storage, filePath);
+  return await getDownloadURL(fileref).then((url) => url);
 };
