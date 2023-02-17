@@ -10,8 +10,9 @@ const Navbar = () => {
   return (
     <header className="p-3 w-full flex flex-col items-center bg-slate-200 border-b">
       <div className="max-w-full w-[1280px] flex items-center justify-between">
-        <Link to="/">
+        <Link to="/" className="flex items-center gap-2">
           <img src="/logo.svg" className="w-10 h-10" />
+          <p className="font-bold">DOCXTER</p>
         </Link>
 
         <div className="flex items-center gap-5 font-bold">
