@@ -3,7 +3,7 @@ import PageLayout from "@layouts/PageLayout";
 import { useStore } from "@utils/store";
 import { where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Document } from "types/document";
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
@@ -28,7 +28,7 @@ function loadFile(
 
 const ViewDocument = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [pdfLink, setPdfLink] = useState("");
+  const [pdfLink, setPdfLink] = useState<{ url: string }>({ url: "" });
   const [companyDocument, setCompanyDocument] = useState<Document | null>(null);
   const [documentAttributeData, setDocumentAttributeData] = useState({});
 
@@ -160,9 +160,12 @@ const ViewDocument = () => {
         >
           Download Document
         </Button>
-
-        {pdfLink && <Link to={pdfLink}>Download your PDF</Link>}
       </Form>
+      {pdfLink.url && (
+        <a className="underline" target="_blank" href={pdfLink.url}>
+          Download your PDF
+        </a>
+      )}
     </PageLayout>
   );
 };
