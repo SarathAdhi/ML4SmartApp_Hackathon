@@ -5,7 +5,7 @@ import { Component } from "types/component";
 
 const PageLayout: React.FC<Component> = ({ children, className }) => {
   return (
-    <main className="min-h-screen flex flex-col items-center bg-slate-200">
+    <main className="min-h-screen flex flex-col items-center bg-slate-300">
       <Navbar />
 
       <div

@@ -2,15 +2,16 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import PizZipUtils from "pizzip/utils";
 import PageLayout from "@layouts/PageLayout";
-import { Button, Upload, Form, Select, Modal, Input } from "antd";
+import { Button, Upload, Modal, Input } from "antd";
 import type { UploadProps, UploadFile } from "antd";
 import { useState } from "react";
-import { addDoc, fileUpload, updateDoc } from "@backend/lib";
+import { addDoc, fileUpload } from "@backend/lib";
 import { v4 } from "uuid";
 import { useStore } from "@utils/store";
 import { toast } from "react-hot-toast";
 import { getDownloadURL } from "firebase/storage";
 import withAuth from "@hoc/withAuth";
+import DataTypesForm from "@modules/Upload/DataTypesForm";
 
 interface LoadFileProps {
   url: string;
@@ -24,16 +25,21 @@ function loadFile(
   PizZipUtils.getBinaryContent(url, callback);
 }
 
+const options = {
+  paragraphLoop: true,
+  linebreaks: true,
+};
+
 function UploadPage() {
   const [file, setFile] = useState<UploadFile | null>();
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [fileUrl, setFileUrl] = useState("");
-  const [documentId, setDocumentId] = useState("");
-  const [documentName, setDocumentName] = useState("");
+  const [document, setDocument] = useState({
+    name: "",
+    id: "",
+  });
   const [attributesName, setAttributesName] = useState<string[]>([]);
   const [attributesDataTypes, setAttributesDataTypes] = useState({});
-
-  const [form] = Form.useForm();
 
   const { user } = useStore();
 
@@ -44,15 +50,15 @@ function UploadPage() {
       if (error) throw error;
 
       const zip = new PizZip(content);
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-      });
+      const doc = new Docxtemplater(zip, options);
 
       const text = doc.getFullText();
+
       const regx = /{([^}]+)}/g;
 
-      const attributesName = text.match(regx) as string[];
+      let attributesName = text.match(regx) as string[];
+
+      attributesName = attributesName.map((e) => e.replace(/[\])}[{(]/g, ""));
 
       // const obj = dataTypes?.reduce((pre, cur) => ({ ...pre, [cur]: "" }), {});
       const initialValues = attributesName?.reduce(
@@ -67,7 +73,7 @@ function UploadPage() {
   }
 
   async function uploadDocument() {
-    setIsConfirmationModalOpen(false);
+    setIsModalOpen(false);
 
     if (!file) return;
 
@@ -80,6 +86,8 @@ function UploadPage() {
     try {
       const { ref } = await fileUpload(filePath, file);
 
+      toast.success("File Uploaded successfully");
+
       const fileLink = await getDownloadURL(ref);
 
       setFileUrl(fileLink);
@@ -90,23 +98,17 @@ function UploadPage() {
         fileLink,
         uuid,
         companyId: user?.companyId,
-        name: documentName,
+        name: document.name,
+        attributes: {},
       });
 
-      setDocumentId(res.id);
+      setDocument({
+        ...document,
+        id: res.id,
+      });
     } catch (error) {
       toast.error("Something went wrong");
     }
-  }
-
-  async function handleSubmit() {
-    console.log({ documentId });
-    await updateDoc("document", documentId, {
-      attributes: attributesDataTypes,
-    });
-
-    setAttributesDataTypes({});
-    setAttributesName([]);
   }
 
   const uploadButtonProps: UploadProps = {
@@ -114,70 +116,59 @@ function UploadPage() {
     maxCount: 1,
     onChange(info) {
       setFile(info.file.originFileObj);
-      setIsConfirmationModalOpen(true);
+      setIsModalOpen(true);
     },
   };
 
+  console.log({ attributesDataTypes });
+
   return (
-    <PageLayout>
-      <Upload {...uploadButtonProps}>
-        <Button>Click to Upload</Button>
+    <PageLayout className="flex flex-col items-center gap-5">
+      <Upload {...uploadButtonProps} className="grid">
+        <Button
+          size="large"
+          className="w-full font-semibold bg-blue-600 !text-white"
+        >
+          Click to Upload
+        </Button>
       </Upload>
 
       {fileUrl && (
-        <Button onClick={generateDataTypesForm}>
-          Generate Form for data types
+        <Button
+          size="large"
+          className="font-semibold bg-blue-600 !text-white"
+          onClick={generateDataTypesForm}
+        >
+          Generate Form
         </Button>
       )}
 
-      {attributesName && (
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={attributesDataTypes}
-        >
-          {attributesName.map((data, index) => (
-            <Form.Item
-              key={data + index}
-              label={data.toUpperCase()}
-              name={data}
-              rules={[
-                {
-                  required: true,
-                  message: `Please input your variable ${data}!`,
-                },
-              ]}
-            >
-              <Select
-                style={{ width: 120 }}
-                onChange={(e) =>
-                  setAttributesDataTypes({
-                    ...attributesDataTypes,
-                    [data]: e,
-                  })
-                }
-                options={[
-                  { value: "string", label: "String" },
-                  { value: "number", label: "Number" },
-                  { value: "date", label: "Date" },
-                ]}
-              />
-            </Form.Item>
-          ))}
-
-          <Button htmlType="submit">Submit</Button>
-        </Form>
+      {attributesName.length !== 0 && (
+        <DataTypesForm
+          documentId={document.id}
+          handleSelectChange={(key, value) =>
+            setAttributesDataTypes({
+              ...attributesDataTypes,
+              [key]: value,
+            })
+          }
+          handleSubmitCallBack={() => {
+            setAttributesDataTypes({});
+            setAttributesName([]);
+          }}
+          {...{ attributesDataTypes, attributesName }}
+        />
       )}
 
       <Modal
         title="Save & Upload Document"
         centered
-        open={isConfirmationModalOpen}
+        open={isModalOpen}
         onOk={uploadDocument}
         onCancel={() => {
-          setIsConfirmationModalOpen(false);
+          setIsModalOpen(false);
           setFile(null);
+          setFileUrl("");
         }}
         okButtonProps={{
           type: "dashed",
@@ -186,7 +177,12 @@ function UploadPage() {
       >
         <Input
           placeholder="Enter a name for your Document"
-          onChange={(e) => setDocumentName(e.target.value)}
+          onChange={(e) =>
+            setDocument({
+              ...document,
+              name: e.target.value,
+            })
+          }
         />
       </Modal>
     </PageLayout>

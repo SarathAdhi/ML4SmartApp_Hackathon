@@ -51,8 +51,18 @@ function Login() {
   };
 
   return (
-    <PageLayout>
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+    <PageLayout className="flex items-center justify-center flex-col gap-5">
+      <div className="flex flex-col items-center text-center">
+        <img src="/logo.svg" className="w-20 h-20" />
+        <h1 className="font-bold">Sign in to your account</h1>
+      </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="bg-white rounded-md p-5 grid place-items-center w-full md:w-[500px]"
+      >
         <Form.Item
           label="Email"
           name="email"
@@ -86,10 +96,21 @@ function Login() {
           />
         </Form.Item>
 
-        <Button htmlType="submit">Login</Button>
-      </Form>
+        <Button
+          htmlType="submit"
+          size="large"
+          className="w-full font-semibold bg-green-600 !text-white"
+        >
+          Login
+        </Button>
 
-      <Link to="/auth/register">Create an account</Link>
+        <Link
+          to="/auth/register"
+          className="mt-2 text-blue-500 hover:underline"
+        >
+          Create an account
+        </Link>
+      </Form>
     </PageLayout>
   );
 }

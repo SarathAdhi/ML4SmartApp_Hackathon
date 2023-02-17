@@ -10,6 +10,8 @@ import PizZip from "pizzip";
 import PizZipUtils from "pizzip/utils";
 import { saveAs } from "file-saver";
 import { Button, Form, Input } from "antd";
+import withAuth from "@hoc/withAuth";
+import SpinFC from "antd/lib/spin";
 
 interface LoadFileProps {
   url: string;
@@ -25,10 +27,13 @@ function loadFile(
 
 const ViewDocument = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [companyDocument, setCompanyDocument] = useState<Document>();
+  const [companyDocument, setCompanyDocument] = useState<Document | null>(null);
   const [documentAttributeData, setDocumentAttributeData] = useState({});
 
-  let { id } = useParams();
+  const params = useParams();
+
+  const id = params?.id || "";
+
   const { user } = useStore();
   const [form] = Form.useForm();
 
@@ -40,11 +45,18 @@ const ViewDocument = () => {
     setIsLoading(false);
   }
 
-  useEffect(() => {
-    getCompanyDocument();
-  }, []);
+  console.log({ companyDocument });
 
-  if (isLoading) return <p>....</p>;
+  useEffect(() => {
+    if (id) getCompanyDocument();
+  }, [id]);
+
+  if (isLoading)
+    return (
+      <div className="h-screen grid place-content-center">
+        <SpinFC size="large" />
+      </div>
+    );
 
   if (!companyDocument)
     return <h3 className="text-center">Document not found</h3>;
@@ -71,6 +83,7 @@ const ViewDocument = () => {
       try {
         doc.render();
       } catch (error) {}
+
       const out = doc.getZip().generate({
         type: "blob",
         mimeType:
@@ -81,46 +94,52 @@ const ViewDocument = () => {
     });
   };
 
-  const attributesArray = Object.entries(attributes);
-  console.log({ documentAttributeData });
+  const attributesArray = attributes && Object.entries(attributes);
+  // console.log({ documentAttributeData });
 
   return (
     <PageLayout>
-      <div>
-        <p>{id}</p>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={generateDocument}
+        className="bg-white rounded-md p-5 grid place-items-start grid-cols-1 md:grid-cols-2 gap-5 w-full"
+      >
+        {attributesArray.map((attribute) => (
+          <Form.Item
+            key={attribute[0]}
+            label={attribute[0]}
+            name={attribute[0]}
+            rules={[
+              {
+                required: true,
+                message: `Please input your varible ${attribute[0]}!`,
+              },
+            ]}
+          >
+            <Input
+              placeholder={`Enter your variable ${attribute[0]}`}
+              type={attribute[1] as string}
+              onChange={(e) =>
+                setDocumentAttributeData({
+                  ...documentAttributeData,
+                  [attribute[0]]: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+        ))}
 
-        <Form form={form} layout="vertical" onFinish={generateDocument}>
-          {attributesArray.map((attribute) => (
-            <Form.Item
-              key={attribute[0]}
-              label={attribute[0]}
-              name={attribute[0]}
-              rules={[
-                {
-                  required: true,
-                  message: `Please input your varible ${attribute[0]}!`,
-                },
-              ]}
-            >
-              <Input
-                placeholder={`Enter your variable ${attribute[0]}`}
-                type={attribute[1] as string}
-                onChange={(e) =>
-                  setDocumentAttributeData({
-                    ...documentAttributeData,
-                    [attribute[0].replaceAll("{", "").replaceAll("}", "")]:
-                      e.target.value,
-                  })
-                }
-              />
-            </Form.Item>
-          ))}
-
-          <Button htmlType="submit">Download Document</Button>
-        </Form>
-      </div>
+        <Button
+          htmlType="submit"
+          size="large"
+          className="font-semibold bg-blue-600 !text-white"
+        >
+          Download Document
+        </Button>
+      </Form>
     </PageLayout>
   );
 };
 
-export default ViewDocument;
+export default withAuth(ViewDocument, false);

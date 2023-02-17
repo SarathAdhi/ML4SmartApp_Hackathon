@@ -1,4 +1,5 @@
 export type Document = {
+  id: string;
   uuid: string;
   name: string;
   filePath: string;

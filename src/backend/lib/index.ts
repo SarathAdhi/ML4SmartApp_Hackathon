@@ -11,8 +11,14 @@ import {
   QueryConstraint,
   updateDoc as updateDocFB,
   doc,
+  deleteDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 
 type DocProps = {
   collection: "user" | "document";
@@ -27,6 +33,27 @@ export const addDoc = async (
     collection === "user" ? userCollectionRef : documentCollectionRef;
 
   return await addDocFB(getCollection, values);
+};
+
+export const delFile = async (filePath: string) => {
+  const storageRef = ref(storage, filePath);
+
+  deleteObject(storageRef)
+    .then(() => {
+      console.log("File deleted");
+    })
+    .catch((error) => {
+      // Uh-oh, an error occurred!
+    });
+};
+
+export const delDoc = async (
+  collection: DocProps["collection"] = "user",
+  id: string,
+  filePath?: string
+) => {
+  if (filePath) delFile(filePath);
+  return await deleteDoc(doc(dbFireStore, collection, id));
 };
 
 export const updateDoc = async (
@@ -55,7 +82,7 @@ export const filterDoc = async (
   const data = [] as any;
 
   querySnapshot.forEach((doc) => {
-    data.push(doc.data());
+    data.push({ id: doc.id, ...doc.data() });
   });
 
   return data;

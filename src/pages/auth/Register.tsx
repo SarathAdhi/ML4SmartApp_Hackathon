@@ -4,11 +4,12 @@ import Form from "antd/lib/Form";
 import Switch from "antd/lib/Switch";
 import { useEffect, useState } from "react";
 import { Button } from "antd";
-import { addDoc } from "@backend/lib";
+import { addDoc, filterDoc } from "@backend/lib";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-hot-toast";
 import { useStore } from "@utils/store";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { where } from "firebase/firestore";
 
 function Register() {
   const [form] = Form.useForm();
@@ -32,6 +33,26 @@ function Register() {
     const uuid = uuidv4();
 
     try {
+      const emailExist = await filterDoc(
+        "user",
+        where("email", "==", formDetails.email)
+      );
+
+      if (emailExist.length !== 0) {
+        toast.error("Email already exist");
+        return;
+      }
+
+      const companyIdExist = await filterDoc(
+        "user",
+        where("companyId", "==", formDetails.companyId)
+      );
+
+      if (companyIdExist.length === 0) {
+        toast.error("Company ID doesn't exist");
+        return;
+      }
+
       await addDoc("user", {
         uuid,
         ...formDetails,
@@ -47,12 +68,20 @@ function Register() {
   };
 
   return (
-    <PageLayout>
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+    <PageLayout className="flex items-center justify-center flex-col gap-5">
+      <div className="flex flex-col items-center text-center">
+        <img src="/logo.svg" className="w-20 h-20" />
+        <h1 className="font-bold">Create a new account</h1>
+      </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="bg-white rounded-md p-5 grid place-items-center w-full md:w-[500px]"
+      >
         <div className="flex items-center gap-5 mb-5">
-          <h3
-            className={!formDetails.isAdmin ? "font-semibold" : "font-normal"}
-          >
+          <h3 className={!formDetails.isAdmin ? "font-bold" : "font-normal"}>
             Employee
           </h3>
 
@@ -65,7 +94,7 @@ function Register() {
             }
           />
 
-          <h3 className={formDetails.isAdmin ? "font-semibold" : "font-normal"}>
+          <h3 className={formDetails.isAdmin ? "font-bold" : "font-normal"}>
             Admin
           </h3>
         </div>
@@ -135,7 +164,17 @@ function Register() {
           />
         </Form.Item>
 
-        <Button htmlType="submit">Register</Button>
+        <Button
+          htmlType="submit"
+          size="large"
+          className="w-full font-semibold bg-green-600 !text-white"
+        >
+          Register
+        </Button>
+
+        <Link to="/auth/login" className="mt-2 text-blue-500 hover:underline">
+          Already have an account? Login
+        </Link>
       </Form>
     </PageLayout>
   );

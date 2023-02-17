@@ -17,11 +17,20 @@
   }
 }
 
+.ant-form-item {
+  @apply w-full;
+}
+
 .ant-form-item-required,
 .ant-form-item-label {
   @apply !font-medium !text-lg;
 }
 
 input {
-  @apply !text-lg;
+  @apply !text-lg w-full;
+}
+
+select,
+.ant-select {
+  @apply !text-lg !w-full;
 }
