@@ -1,9 +1,7 @@
 import PageLayout from "@layouts/PageLayout";
 import Input from "antd/lib/input";
-import Form from "antd/lib/Form";
-import Switch from "antd/lib/Switch";
 import { useEffect, useState } from "react";
-import { Button } from "antd";
+import { Button, Form, Switch } from "antd";
 import { addDoc, filterDoc } from "@backend/lib";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-hot-toast";

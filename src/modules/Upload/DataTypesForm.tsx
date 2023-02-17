@@ -1,8 +1,7 @@
 import { updateDoc } from "@backend/lib";
 import { FORM_DATA_TYPES } from "@utils/constants";
-import { Select } from "antd";
+import { Form, Select } from "antd";
 import Button from "antd/lib/button";
-import Form from "antd/lib/Form";
 import React from "react";
 import { toast } from "react-hot-toast";
 import { Document } from "types/document";
