@@ -3,4 +3,5 @@ export const FORM_DATA_TYPES = [
   { value: "number", label: "Number" },
   { value: "email", label: "Email" },
   { value: "date", label: "Date" },
+  { value: "drop-down", label: "Drop Down" },
 ];
