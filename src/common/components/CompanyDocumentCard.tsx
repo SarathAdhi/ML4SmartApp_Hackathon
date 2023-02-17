@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { Document } from "types/document";
 
 type Props = {
-  getCompanyDocuments: () => void;
+  getCompanyDocuments?: () => void;
 } & Document;
 
 async function handleDocumentDelete(id: string, filePath?: string) {
@@ -33,7 +33,7 @@ const CompanyDocumentCard: React.FC<Props> = ({
         description="Are you sure to delete this document?"
         onConfirm={() => {
           handleDocumentDelete(id, filePath).then((e) => {
-            getCompanyDocuments();
+            getCompanyDocuments?.();
           });
         }}
         okText="Yes"
