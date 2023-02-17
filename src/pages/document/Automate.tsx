@@ -93,10 +93,6 @@ const AuutomateDocument = () => {
           newObj[headerNames[i] as string] = e;
         });
 
-        console.log({ newObj });
-
-        console.log({ newObj });
-
         doc.setData(newObj);
 
         try {

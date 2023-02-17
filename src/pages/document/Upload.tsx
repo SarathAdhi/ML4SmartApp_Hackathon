@@ -120,8 +120,6 @@ function UploadPage() {
     },
   };
 
-  console.log({ attributesDataTypes });
-
   return (
     <PageLayout className="flex flex-col items-center gap-5">
       <Upload {...uploadButtonProps} className="grid">

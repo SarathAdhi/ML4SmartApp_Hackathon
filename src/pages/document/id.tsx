@@ -1,9 +1,9 @@
-import { filterDoc } from "@backend/lib";
+import { fileUpload, filterDoc } from "@backend/lib";
 import PageLayout from "@layouts/PageLayout";
 import { useStore } from "@utils/store";
 import { where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Document } from "types/document";
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
@@ -12,6 +12,7 @@ import { saveAs } from "file-saver";
 import { Button, Form, Input } from "antd";
 import withAuth from "@hoc/withAuth";
 import SpinFC from "antd/lib/spin";
+import { getDownloadURL } from "firebase/storage";
 
 interface LoadFileProps {
   url: string;
@@ -27,6 +28,7 @@ function loadFile(
 
 const ViewDocument = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [pdfLink, setPdfLink] = useState("");
   const [companyDocument, setCompanyDocument] = useState<Document | null>(null);
   const [documentAttributeData, setDocumentAttributeData] = useState({});
 
@@ -44,8 +46,6 @@ const ViewDocument = () => {
 
     setIsLoading(false);
   }
-
-  console.log({ companyDocument });
 
   useEffect(() => {
     if (id) getCompanyDocument();
@@ -67,7 +67,7 @@ const ViewDocument = () => {
   const { fileLink, attributes, name } = companyDocument;
 
   const generateDocument = () => {
-    loadFile(fileLink, function (error: Error, content: string) {
+    loadFile(fileLink, async function (error: Error, content: string) {
       if (error) {
         throw error;
       }
@@ -90,12 +90,35 @@ const ViewDocument = () => {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       });
 
+      const filePath = `${user?.companyId}/${companyDocument.uuid}-d.docx`;
+
+      const { ref } = await fileUpload(filePath, out);
+
+      const fileLink = await getDownloadURL(ref);
+
       saveAs(out, `${name}.docx`);
+
+      const res = await fetch("https://api.pdf.co/v1/pdf/convert/from/doc", {
+        body: JSON.stringify({
+          url: fileLink,
+          pages: "0-",
+          name: "result.pdf",
+        }),
+        method: "POST",
+        headers: {
+          "x-api-key":
+            "cocsarathzenith@gmail.com_3497fc69b1d580f225f13104a68f56fcdb8f5ef4c173135a1af30eee24d67ff8349713f4",
+          "Content-Type": "application/json",
+        },
+      });
+
+      const pdfL = await res.json();
+
+      setPdfLink(pdfL);
     });
   };
 
   const attributesArray = attributes && Object.entries(attributes);
-  // console.log({ documentAttributeData });
 
   return (
     <PageLayout>
@@ -137,6 +160,8 @@ const ViewDocument = () => {
         >
           Download Document
         </Button>
+
+        {pdfLink && <Link to={pdfLink}>Download your PDF</Link>}
       </Form>
     </PageLayout>
   );

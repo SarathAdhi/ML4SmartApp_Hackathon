@@ -35,7 +35,7 @@ export const useStore = create<UseStoreProps>((set) => ({
 
       localStorage.setItem("token", user.uuid);
 
-      console.log({ user });
+      // console.log({ user });
 
       set({ user, isAdmin: user.isAdmin });
     } catch ({ error }) {
