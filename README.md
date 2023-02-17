@@ -8,6 +8,28 @@
 
 - Reactjs
 - Vitejs
+- Typescript
 - Antd - UI Component
 - TailwindCSS
 - Firebase
+
+### Packages:
+
+- antd
+- clsx
+- docx
+- docxmarks
+- docxtemplater
+- file-saver
+- firebase
+- pizzip
+- react
+- react-dom
+- react-hot-toast
+- react-router-dom
+- read-excel-file
+- uuid
+- vite-tsconfig-paths
+- zustand
+
+## Deployed URL: https://docx-hackathon.vercel.app/
