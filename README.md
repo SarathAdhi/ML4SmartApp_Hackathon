@@ -1,11 +1,10 @@
-# ML4SmartApp Hackathon
+# ML4SmartApp Hackathon - Winner
 
 ## Deployed URL: https://docx-hackathon.vercel.app/
 
-## Problem Statement: Template based Automated document creation
-### D2A - Data to Action
+## Problem Statement: Template based Automated document creation - `D2A - Data to Action`
 
-### Tech Stack:
+## Tech Stack:
 
 - Reactjs
 - Vitejs
@@ -14,7 +13,7 @@
 - TailwindCSS
 - Firebase
 
-### Packages:
+## Packages:
 
 - antd
 - clsx
@@ -32,3 +31,5 @@
 - uuid
 - vite-tsconfig-paths
 - zustand
+
+![ML4SmartApplication - Winner](https://user-images.githubusercontent.com/91727830/219866154-bcf66bb3-8618-4125-8430-a9fb2ace4b9e.png)
