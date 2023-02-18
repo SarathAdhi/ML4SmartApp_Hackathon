@@ -1,9 +1,9 @@
 # ML4SmartApp Hackathon
 
+## Deployed URL: https://docx-hackathon.vercel.app/
+
 ## Problem Statement: Template based Automated document creation
 ### D2A - Data to Action
-
-### Deployed URL: https://docx-hackathon.vercel.app/
 
 ### Tech Stack:
 
