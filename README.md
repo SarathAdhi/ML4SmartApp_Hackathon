@@ -1,8 +1,9 @@
 # ML4SmartApp Hackathon
 
 ## Problem Statement: Template based Automated document creation
-
 ### D2A - Data to Action
+
+### Deployed URL: https://docx-hackathon.vercel.app/
 
 ### Tech Stack:
 
@@ -31,5 +32,3 @@
 - uuid
 - vite-tsconfig-paths
 - zustand
-
-## Deployed URL: https://docx-hackathon.vercel.app/
